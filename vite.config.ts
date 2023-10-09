@@ -5,5 +5,12 @@ export default defineConfig({
         UnoCSS({
             mode: 'shadow-dom',
         })
-    ]
+    ],
+    server:{
+        proxy:{
+            '/login':{
+                target:'http://10.141.141.81:30631',
+            }
+        }
+    }
 });

@@ -14,6 +14,15 @@ declare global {
 @customElement({ tag: "ld-login", style: `${style}@unocss-placeholder` })
 class Login extends QuarkElement {
   @property({ type: String }) // 外部属性
+  title = ''
+
+  @property({ type: String }) // 外部属性
+  subTitle = ''
+
+  @property({ type: Boolean }) // 外部属性
+  closeCap = false
+
+  @property({ type: String }) // 外部属性
   url = ''
 
   @property({ type: String }) // 外部属性
@@ -40,7 +49,11 @@ class Login extends QuarkElement {
   validation: any = createRef()
 
   loginServe = async () => {
-    const res = await fetch(this.url + '/login/login', {
+    let url = ''
+    if (this.url) {
+      url = this.url
+    }
+    const res = await fetch(url + '/login/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -52,15 +65,30 @@ class Login extends QuarkElement {
         password: this.password,
       }),
     })
-    const data = await res.json()
-    console.log("🚀 ~ file: index.tsx:53 ~ Login ~ loginServe= ~ data:", data)
 
+    const data = await res.json()
+
+    if (res.status !== 200) {
+      this.$emit("login", {
+        detail: {
+          code: res.status,
+          msg: data?.message || '登录失败',
+        },
+      })
+      return
+    }
+
+    this.$emit("login", {
+      detail: {
+        code: res.status,
+        data: data || {},
+      },
+    })
   }
 
   login = () => {
     if (!this.username) {
       this.usernameError = '请输入账号'
-      return
     } else {
       this.usernameError = ''
     }
@@ -73,19 +101,31 @@ class Login extends QuarkElement {
     }
 
     this.isLogin = true
-    captcha({
-      el: this.validation.current,
-      width: 450,
-      height: 200,
-      imgSrc: capbg,
-      onSuccess: () => {
-        this.loginServe()
-        setTimeout(() => {
-          this.isLogin = false
-        }, 1000)
-      },
-    })
+    if (!this.closeCap) {
+      captcha({
+        el: this.validation.current,
+        width: 450,
+        height: 200,
+        imgSrc: capbg,
+        onSuccess: () => {
+          this.loginServe()
+          setTimeout(() => {
+            this.isLogin = false
+          }, 1000)
+        },
+      })
+    } else {
+      this.loginServe()
+    }
   }
+
+  componentDidMount(): void {
+    document.onkeydown = (e) => {
+      if (e.key === 'Enter')
+        this.login()
+    }
+  }
+
 
   onInput = (e, name) => {
     this[name] = e.target.value
@@ -94,7 +134,7 @@ class Login extends QuarkElement {
   render() {
     return (
       <>
-        {this.isLogin ?
+        {this.isLogin && !this.closeCap ?
           <div class="validation">
             <div ref={this.validation} />
           </div> :
@@ -104,8 +144,8 @@ class Login extends QuarkElement {
           <img src={logo} alt="logo" class="lg:block hidden w-1/15 h-50px absolute z-10 top-5 left-5" />
           <div class="lg:flex w-1/3 hidden bg_img relative items-center justify-center">
             <div class=" z-10 text-white">
-              <h1 class="text-5xl font-bold text-left tracking-wide">SSO</h1>
-              <p class="text-3xl my-4">单点登录服务</p>
+              <h1 class="text-5xl font-bold text-left tracking-wide">{this.title}</h1>
+              <p class="text-3xl my-4">{this.subTitle}</p>
               <img class="w-320px" src={banner} alt="banner" />
             </div>
           </div>
