@@ -1,6 +1,6 @@
 {
   "name": "@ldzn/login",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Soya <soya@xiaoyio.com>",
   "scripts": {
     "dev": "npm run start",
@@ -12,6 +12,9 @@
   "main": "./lib/index.umd.js",
   "module": "./lib/index.js",
   "types": "./lib/types/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "exports": {
     ".": {
       "import": "./lib/index.js",
