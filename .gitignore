@@ -1,0 +1,14 @@
+.DS_Store
+.vscode
+.idea
+
+node_modules
+.nyc_output
+
+docker/*/data
+*.log
+*.zip
+.env
+
+
+lib
